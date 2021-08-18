@@ -1,0 +1,11 @@
+{
+    "name": "wordpress-premium/wp-rocket",
+    "type": "wordpress-plugin",
+	"description": "WP Rocket is the most powerful caching plugin in the world. Use it to improve the speed of your WordPress site, SEO rankings and conversions. No coding required.",
+	"homepage": "https://wp-rocket.me/",
+	"version": "3.9.1.2",
+    "require": {
+		"php": ">= 7.0",
+        "composer/installers": "^1.6"
+    }
+}
