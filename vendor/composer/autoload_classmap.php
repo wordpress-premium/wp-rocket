@@ -54,7 +54,6 @@ return array(
     'WP_Rocket\\Subscriber\\Plugin\\Information_Subscriber' => $baseDir . '/inc/classes/subscriber/Plugin/class-information-subscriber.php',
     'WP_Rocket\\Subscriber\\Plugin\\Updater_Api_Common_Subscriber' => $baseDir . '/inc/classes/subscriber/Plugin/class-updater-api-common-subscriber.php',
     'WP_Rocket\\Subscriber\\Plugin\\Updater_Subscriber' => $baseDir . '/inc/classes/subscriber/Plugin/class-updater-subscriber.php',
-    'WP_Rocket\\Subscriber\\Third_Party\\Hostings\\Litespeed_Subscriber' => $baseDir . '/inc/classes/subscriber/third-party/Hostings/class-litespeed-subscriber.php',
     'WP_Rocket\\Subscriber\\Third_Party\\Plugins\\Ecommerce\\BigCommerce_Subscriber' => $baseDir . '/inc/classes/subscriber/third-party/plugins/ecommerce/class-bigcommerce-subscriber.php',
     'WP_Rocket\\Subscriber\\Third_Party\\Plugins\\Images\\Webp\\EWWW_Subscriber' => $baseDir . '/inc/classes/subscriber/third-party/plugins/Images/Webp/class-ewww-subscriber.php',
     'WP_Rocket\\Subscriber\\Third_Party\\Plugins\\Images\\Webp\\Imagify_Subscriber' => $baseDir . '/inc/classes/subscriber/third-party/plugins/Images/Webp/class-imagify-subscriber.php',
