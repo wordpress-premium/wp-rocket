@@ -127,10 +127,10 @@ function rocket_validate_css( $file ) {
  * @return bool
  */
 function rocket_is_internal_file( $file ) {
-	$file_host = wp_parse_url( $file, PHP_URL_HOST );
+	$file_host = wp_parse_url( rocket_add_url_protocol( $file ), PHP_URL_HOST );
 
 	if ( empty( $file_host ) ) {
-		return true;
+		return false;
 	}
 
 	/**

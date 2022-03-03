@@ -1230,6 +1230,10 @@ if ( ! function_exists( 'rocket_settings_callback' ) ) {
 			$inputs = $settings;
 		}
 
+		if ( ! rocket_valid_key() ) {
+			$checked = rocket_check_key();
+		}
+
 		if ( isset( $checked ) && is_array( $checked ) ) {
 			$inputs['consumer_key']   = $checked['consumer_key'];
 			$inputs['consumer_email'] = $checked['consumer_email'];

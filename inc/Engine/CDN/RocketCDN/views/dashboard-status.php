@@ -19,13 +19,13 @@
 	<h3 class="wpr-title2">RocketCDN</h3>
 </div>
 <div class="wpr-field wpr-field-account">
-	<?php if ( $data['is_live_site'] ) : ?>
-	<span class="wpr-infoAccount wpr-isValid"><?php esc_html_e( 'RocketCDN is available on local domains and staging sites, Login in to your WP Rocket Account [WP_ROCKET_KEY: 5c7208e0c4bb305405a96d4da60abcd0].', 'rocket' ); ?></span>
+	<?php if ( ! $data['is_live_site'] ) : ?>
+	<span class="wpr-infoAccount wpr-isInvalid"><?php esc_html_e( 'RocketCDN is unavailable on local domains and staging sites.', 'rocket' ); ?></span>
 	<?php else : ?>
 	<div class="wpr-flex<?php echo esc_attr( $data['container_class'] ); ?>">
 		<div>
 			<span class="wpr-title3"><?php echo esc_html( $data['label'] ); ?></span>
-			<span class="wpr-infoAccount wpr-isValid"><?php echo esc_html( $data['status_text'] ); ?></span>
+			<span class="wpr-infoAccount<?php echo esc_attr( $data['status_class'] ); ?>"><?php echo esc_html( $data['status_text'] ); ?></span>
 		</div>
 		<?php if ( ! $data['is_active'] ) : ?>
 		<div>
