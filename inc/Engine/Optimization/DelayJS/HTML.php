@@ -1,5 +1,5 @@
 <?php
-declare(strict_types=1);
+declare( strict_types=1 );
 
 namespace WP_Rocket\Engine\Optimization\DelayJS;
 
@@ -55,6 +55,21 @@ class HTML {
 		'/ewww-image-optimizer/includes/check-webp(\.min)?.js', // EWWW WebP check external script.
 		'ewww_webp_supported', // EWWW WebP inline scripts.
 		'/dist/js/browser-redirect/app.js', // WPML browser redirect script.
+		'/perfmatters/js/lazyload.min.js',
+		'lazyLoadInstance',
+		'scripts.mediavine.com/tags/', // allows mediavine-video schema to be accessible by search engines.
+		'initCubePortfolio', // Cube Portfolio show images.
+		'simpli.fi', // simpli.fi Advertising Platform scripts.
+		'gforms_recaptcha_', // Gravity Forms recaptcha.
+		'/jetpack-boost/vendor/automattic/jetpack-lazy-images/(.*)', // Jetpack Boost plugin lazyload.
+		'jetpack-lazy-images-js-enabled',  // Jetpack Boost plugin lazyload.
+		'jetpack-boost-critical-css', // Jetpack Boost plugin critical CSS.
+		'wpformsRecaptchaCallback', // WPForms reCAPTCHA v2.
+		'booking-suedtirol-js', // bookingsuedtirol.com widgets.
+		'/gravityforms/js/conditional_logic.min.js', // Gravity forms conditions.
+		'statcounter.com/counter/counter.js', // StatsCounter.
+		'var sc_project', // Statscounter.
+		'/jetpack/jetpack_vendor/automattic/jetpack-lazy-images/(.*)', // Jetpack plugin lazyload.
 	];
 
 	/**
@@ -94,7 +109,7 @@ class HTML {
 		 */
 		$this->excluded = apply_filters( 'rocket_delay_js_exclusions', $this->excluded );
 		$this->excluded = array_map(
-			function( $value ) {
+			function ( $value ) {
 				return str_replace(
 					[ '+', '?ver', '#' ],
 					[ '\+', '\?ver', '\#' ],
@@ -152,7 +167,14 @@ class HTML {
 	 * @return string
 	 */
 	private function parse( $html ): string {
-		$replaced_html = preg_replace_callback( '/<\s*script\s*(?<attr>[^>]*?)?>(?<content>.*?)?<\s*\/\s*script\s*>/ims', [ $this, 'replace_scripts' ], $html );
+		$replaced_html = preg_replace_callback(
+			'/<\s*script\s*(?<attr>[^>]*?)?>(?<content>.*?)?<\s*\/\s*script\s*>/ims',
+			[
+				$this,
+				'replace_scripts',
+			],
+			$html
+		);
 
 		if ( empty( $replaced_html ) ) {
 			return $html;
@@ -184,7 +206,7 @@ class HTML {
 		if ( ! empty( $matches['attr'] ) ) {
 
 			if (
-				strpos( $matches['attr'], 'type' ) !== false
+				strpos( $matches['attr'], 'type=' ) !== false
 				&&
 				! preg_match( '/type\s*=\s*["\'](?:text|application)\/(?:(?:x\-)?javascript|ecmascript|jscript)["\']|type\s*=\s*["\'](?:module)[ "\']/i', $matches['attr'] )
 			) {
@@ -199,5 +221,56 @@ class HTML {
 		}
 
 		return preg_replace( '/<script/i', '<script type="rocketlazyloadscript"', $delay_js, 1 );
+	}
+
+	/**
+	 * Move meta charset to head if not found to the top of page content.
+	 *
+	 * @since 3.9.4
+	 *
+	 * @param string $html Html content.
+	 *
+	 * @return string
+	 */
+	public function move_meta_charset_to_head( $html ): string {
+		$meta_pattern = "#<meta[^h]*(http-equiv[^=]*=[^\'\"]*[\'\" ]Content-Type[\'\"][ ]*[^>]*|)(charset[^=]*=[ ]*[\'\" ]*[^\'\"> ][^\'\">]+[^\'\"> ][\'\" ]*|charset[^=]*=*[^\'\"> ][^\'\">]+[^\'\"> ])([^>]*|)>(?=.*</head>)#Usmi";
+
+		if ( ! preg_match( $meta_pattern, $html, $matches ) ) {
+			return $html;
+		}
+
+		$replaced_html = preg_replace( "$meta_pattern", '', $html );
+
+		if ( empty( $replaced_html ) ) {
+			return $html;
+		}
+
+		if ( preg_match( '/<head\b/i', $replaced_html ) ) {
+			$replaced_html = preg_replace( '/(<head\b[^>]*?>)/i', "\${1}${matches[0]}", $replaced_html, 1 );
+
+			if ( empty( $replaced_html ) ) {
+				return $html;
+			}
+
+			return $replaced_html;
+		}
+
+		if ( preg_match( '/<html\b/i', $replaced_html ) ) {
+			$replaced_html = preg_replace( '/(<html\b[^>]*?>)/i', "\${1}${matches[0]}", $replaced_html, 1 );
+
+			if ( empty( $replaced_html ) ) {
+				return $html;
+			}
+
+			return $replaced_html;
+		}
+
+		$replaced_html = preg_replace( '/(<\w+)/', "${matches[0]}\${1}", $replaced_html, 1 );
+
+		if ( empty( $replaced_html ) ) {
+			return $html;
+		}
+
+		return $replaced_html;
 	}
 }
