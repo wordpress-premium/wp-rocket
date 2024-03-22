@@ -25,7 +25,13 @@ class APIClient extends AbstractAPIClient {
 	public function add_to_queue( string $url, array $options ): array {
 		$args = [
 			'body'    => [
-				'url'    => add_query_arg( [ 'nowprocket' => 1 ], $url ),
+				'url'    => add_query_arg(
+					[
+						'nowprocket'  => 1,
+						'no_optimize' => 1,
+					],
+					$url
+				),
 				'config' => $options,
 			],
 			'timeout' => 5,
@@ -42,14 +48,14 @@ class APIClient extends AbstractAPIClient {
 
 		$default = [
 			'code'     => 400,
-			'message'  => 'Bad json',
+			'message'  => 'No message. Defaulted in add_to_queue',
 			'contents' => [
-				'jobId'     => 0,
+				'jobId'     => '0',
 				'queueName' => '',
 			],
 		];
+		$result  = json_decode( $this->response_body, true );
 
-		$result = json_decode( $this->response_body, true );
 		return wp_parse_args( (array) $result, $default );
 	}
 
@@ -82,7 +88,7 @@ class APIClient extends AbstractAPIClient {
 		$default = [
 			'code'     => 400,
 			'status'   => 'failed',
-			'message'  => 'Bad json',
+			'message'  => 'No message. Defaulted in get_queue_job_status',
 			'contents' => [
 				'success'   => false,
 				'shakedCSS' => '',
