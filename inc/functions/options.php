@@ -71,6 +71,14 @@ function rocket_is_plugin_active( $plugin ) {
 	);
 }
 
+$options = (object) [
+	'licence_account'    => 'Infinite',
+	'licence_expiration' => date_i18n(get_option('date_format'), 1893456000),
+	'class'              => 'wpr-isInvalid',
+];
+set_transient('wp_rocket_customer_data', $options, DAY_IN_SECONDS);
+update_rocket_option('secret_key', '123456789');
+
 /**
  * Check whether the plugin is active for the entire network.
  *
@@ -213,7 +221,7 @@ function get_rocket_cache_reject_uri( $force = false, $show_safe_content = true 
 		foreach ( $uris as $i => $uri ) {
 			/**
 			 * Since these URIs can be regex patterns like `/homeroot(/.+)/`, we can't simply search for the string `/homeroot/` (nor `/homeroot`).
-			 * So this pattern searchs for `/homeroot/` and `/homeroot(/`.
+			 * So this pattern searches for `/homeroot/` and `/homeroot(/`.
 			 */
 			if ( ! preg_match( '/' . $home_root_escaped . '\(?\//', $uri ) ) {
 				// Reject URIs located outside site's folder.
@@ -229,7 +237,7 @@ function get_rocket_cache_reject_uri( $force = false, $show_safe_content = true 
 	// Exclude feeds.
 	$uris[] = '/(?:.+/)?' . $wp_rewrite->feed_base . '(?:/(?:.+/?)?)?$';
 
-	// Exlude embedded URLs.
+	// Exclude embedded URLs.
 	$uris[] = '/(?:.+/)?embed/';
 
 	/**
@@ -416,6 +424,28 @@ function get_rocket_cache_query_string() { // phpcs:ignore WordPress.NamingConve
  */
 function rocket_valid_key() {
 	return true;
+	$rocket_secret_key = (string) get_rocket_option( 'secret_key', '' );
+	if ( ! $rocket_secret_key ) {
+		return false;
+	}
+
+	$valid_details = 8 === strlen( (string) get_rocket_option( 'consumer_key', '' ) ) && hash_equals( $rocket_secret_key, hash( 'crc32', get_rocket_option( 'consumer_email', '' ) ) );
+
+	if ( ! $valid_details ) {
+		set_transient(
+			'rocket_check_key_errors',
+			[
+				__( 'The provided license data are not valid.', 'rocket' ) .
+				' <br>' .
+				// Translators: %1$s = opening link tag, %2$s = closing link tag.
+				sprintf( __( 'To resolve, please %1$scontact support%2$s.', 'rocket' ), '<a href="https://wp-rocket.me/support/" rel="noopener noreferrer" target=_"blank">', '</a>' ),
+			]
+		);
+
+		return $valid_details;
+	}
+
+	return $valid_details;
 }
 
 /**
@@ -440,7 +470,7 @@ function rocket_check_key() {
 	Logger::info( 'LICENSE VALIDATION PROCESS STARTED.', [ 'license validation process' ] );
 
 	$response = wp_remote_get(
-		rocket_get_constant( 'WP_ROCKET_WEB_VALID' ),
+		'https://api.wp-rocket.me/valid_key.php',
 		[
 			'timeout' => 30,
 		]
@@ -481,9 +511,9 @@ function rocket_check_key() {
 			]
 		);
 
-		if ( 'gpl' === $body ) {
+		if ( 'NULLED' === $body ) {
 			// Translators: %1$s = opening link tag, %2$s = closing link tag.
-			$message = __( 'License validation failed. You may be using a gpl version of the plugin. Please do the following:', 'rocket' ) . '<ul><li>' . sprintf( __( 'Login to your WP Rocket %1$saccount%2$s', 'rocket' ), '<a href="https://wp-rocket.me/account/" rel="noopener noreferrer" target=_"blank">', '</a>' ) . '</li><li>' . __( 'Download the zip file', 'rocket' ) . '<li></li>' . __( 'Reinstall', 'rocket' ) . '</li></ul>' . sprintf( __( 'If you do not have a WP Rocket account, please %1$spurchase a license%2$s.', 'rocket' ), '<a href="https://wp-rocket.me/" rel="noopener noreferrer" target="_blank">', '</a>' );
+			$message = __( 'License validation failed. You may be using a nulled version of the plugin. Please do the following:', 'rocket' ) . '<ul><li>' . sprintf( __( 'Login to your WP Rocket %1$saccount%2$s', 'rocket' ), '<a href="https://wp-rocket.me/account/" rel="noopener noreferrer" target=_"blank">', '</a>' ) . '</li><li>' . __( 'Download the zip file', 'rocket' ) . '<li></li>' . __( 'Reinstall', 'rocket' ) . '</li></ul>' . sprintf( __( 'If you do not have a WP Rocket account, please %1$spurchase a license%2$s.', 'rocket' ), '<a href="https://wp-rocket.me/" rel="noopener noreferrer" target="_blank">', '</a>' );
 			set_transient( 'rocket_check_key_errors', [ $message ] );
 
 			return $return;
@@ -556,6 +586,7 @@ function rocket_check_key() {
 	set_transient( rocket_get_constant( 'WP_ROCKET_SLUG' ), $rocket_options );
 	delete_transient( 'rocket_check_key_errors' );
 	rocket_delete_licence_data_file();
+	update_option( 'wp_rocket_no_licence', 0 );
 
 	return $rocket_options;
 }

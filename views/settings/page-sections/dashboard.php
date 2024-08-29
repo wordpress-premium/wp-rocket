@@ -119,6 +119,26 @@ defined( 'ABSPATH' ) || exit;
 				</div>
 			</div>
 			<?php endif; ?>
+			<div class="wpr-fieldsContainer">
+				<fieldset class="wpr-fieldsContainer-fieldset">
+					<div class="wpr-field wpr-field--radio">
+						<div class="wpr-radio">
+							<input type="checkbox" id="analytics_enabled" class="" name="wp_rocket_settings[analytics_enabled]" value="1" <?php checked( get_rocket_option( 'analytics_enabled', 0 ), 1 ); ?>>
+							<label for="analytics_enabled" class="">
+								<span data-l10n-active="On"
+									data-l10n-inactive="Off" class="wpr-radio-ui"></span>
+								<?php esc_html_e( 'Rocket Analytics', 'rocket' ); ?>
+							</label>
+						</div>
+						<div class="wpr-field-description">
+							<?php
+							// translators: %1$s = opening <a> tag, %2$s = closing </a> tag.
+							printf( esc_html__( 'I agree to share anonymous data with the development team to help improve WP Rocket. %1$sWhat info will we collect?%2$s', 'rocket' ), '<button class="wpr-js-popin">', '</button>' );
+							?>
+						</div>
+					</div>
+				</fieldset>
+			</div>
 			<?php
 			/**
 			 * Fires after the account data section on the WP Rocket settings dashboard
@@ -126,9 +146,6 @@ defined( 'ABSPATH' ) || exit;
 			 * @since 3.5
 			 */
 			do_action( 'rocket_dashboard_after_account_data' );
-			?>
-			<?php
-				$this->render_settings_sections( $data['id'] );
 			?>
 		</div>
 
@@ -177,23 +194,14 @@ defined( 'ABSPATH' ) || exit;
 					</div>
 					<?php endif; ?>
 
-					<?php if ( 'local' !== wp_get_environment_type() && get_rocket_option( 'remove_unused_css' ) && current_user_can( 'rocket_remove_unused_css' ) ) : ?>
-						<div class="wpr-field">
-							<h4 class="wpr-title3"><?php esc_html_e( 'Remove Used CSS Cache', 'rocket' ); ?></h4>
-							<?php
-							$this->render_action_button(
-									'link',
-									'rocket_clear_usedcss',
-									[
-										'label'      => __( 'Clear Used CSS', 'rocket' ),
-										'attributes' => [
-											'class' => 'wpr-button wpr-button--icon wpr-button--small wpr-icon-trash',
-										],
-									]
-							);
-							?>
-						</div>
-					<?php endif; ?>
+					<?php
+					/**
+					 * Fires in the dasbhoard actions column
+					 *
+					 * @since 3.16
+					 */
+					do_action( 'rocket_dashboard_actions' );
+					?>
 				</fieldset>
 			</div>
 		</div>

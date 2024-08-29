@@ -803,6 +803,10 @@ function rocket_clean_home_feeds() {
  * @param WP_Filesystem_Direct|null $filesystem Optional. Instance of filesystem handler.
  */
 function rocket_clean_domain( $lang = '', $filesystem = null ) {
+	if ( did_action( 'rocket_after_clean_domain' ) ) {
+		return;
+	}
+
 	if ( rocket_is_importing() ) {
 		return;
 	}
@@ -1158,7 +1162,7 @@ function rocket_rrmdir( $dir, array $dirs_to_preserve = [], $filesystem = null )
 }
 
 /**
- * Instanciate the filesystem class
+ * Instantiate the filesystem class
  *
  * @since 2.10
  *
